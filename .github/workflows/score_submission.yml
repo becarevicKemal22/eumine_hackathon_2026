@@ -5,43 +5,64 @@ on:
     paths:
       - 'submissions/**/predictions_test.json'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   score:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Find submission file
         id: find
         run: |
-          # Find all changed predictions_test.json files in this PR
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
-                  | grep 'submissions/.*/predictions_test.json' | head -1)
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+
+          FILES=$(git diff --name-only $BASE $HEAD \
+            | grep 'submissions/.*/predictions_test.json' \
+            | head -1)
+
           if [ -z "$FILES" ]; then
             echo "No predictions_test.json found in this PR."
             exit 1
           fi
+
           echo "pred_file=$FILES" >> $GITHUB_OUTPUT
-          # Extract team name from path: submissions/TeamName/predictions_test.json
+
           TEAM=$(echo "$FILES" | cut -d'/' -f2)
           echo "team=$TEAM" >> $GITHUB_OUTPUT
 
       - name: Decode test labels
         run: |
           echo "${{ secrets.TEST_LABELS_B64 }}" | base64 -d > /tmp/test_labels.json
-          python -c "import json; d=json.load(open('/tmp/test_labels.json')); print(f'Labels loaded: {len(d[\"labels\"])} entries')"
+
+          python -c "
+import json
+d = json.load(open('/tmp/test_labels.json'))
+print(f'Labels loaded: {len(d[\"labels\"])} entries')
+"
 
       - name: Run scoring
         run: |
           mkdir -p /tmp/input/res /tmp/input/ref /tmp/output
+
           cp "${{ steps.find.outputs.pred_file }}" /tmp/input/res/predictions_test.json
           cp /tmp/test_labels.json /tmp/input/ref/test_labels.json
+
           python scoring/evaluate.py /tmp/input /tmp/output
+
           echo "SCORES=$(cat /tmp/output/scores.json)" >> $GITHUB_ENV
 
       - name: Post score as PR comment
@@ -50,8 +71,12 @@ jobs:
           script: |
             const s = JSON.parse(process.env.SCORES);
             const team = "${{ steps.find.outputs.team }}";
+
             const baseline = 20.0;
-            const beat = s.performance_score > baseline ? "✅ beats baseline" : "⚠️ below baseline";
+            const beat = s.performance_score > baseline
+              ? "✅ beats baseline"
+              : "⚠ below baseline";
+
             const body = [
               `## Submission Score — ${team}`,
               "",
@@ -68,6 +93,7 @@ jobs:
               "",
               `_Baseline = 20.0 pts. Perfect = 40.0 pts._`
             ].join("\n");
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

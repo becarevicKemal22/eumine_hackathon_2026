@@ -2,7 +2,7 @@
 
 **Predict materials properties from heterogeneous, multi-source data — and make your model interoperable.**
 
-- **Stage 1 (remote):** May 12 – June 22, 2026
+- **Stage 1 (remote):** May 11 – June 22, 2026
 - **Stage 2 (in-person):** EuMINe General Meeting, Cluj-Napoca, July 2026
 - **Submissions:** open a PR to [`submissions/YourTeam/predictions_test.json`](submissions/) — score posted automatically
 - **Website:** https://www.eumine-cost.eu/news/eumine-hackaton-2026/
@@ -70,7 +70,7 @@ See [`report_template/README.txt`](report_template/README.txt) for compilation a
 
 ## Datasets
 
-Download from Google Drive: **https://drive.google.com/drive/folders/XXXXXXXX** *(link added when files are uploaded)*
+Download from Google Drive: **https://drive.google.com/drive/folders/1CAF8_rymTdr-2PM9z-xy2RnSYJKi8XS2?usp=drive_link** *(link added when files are uploaded)*
 
 | File | Description |
 |------|-------------|
@@ -122,7 +122,7 @@ See [`submissions/README.md`](submissions/README.md) for full instructions.
 
 ## Stage 2 (July 2026, Cluj-Napoca)
 
-Top 8 teams are invited in person. EuMINe covers travel (up to €300/person) and accommodation for up to 2 representatives per team.
+Top 8 teams are invited in person. EuMINe covers travel (up to €300/person) and accommodation for up to 3 representatives per team.
 
 **Federation Sprint:** teams are grouped (3–4 teams/group) and must combine their models into a federated ensemble, evaluated on new out-of-distribution materials. The MatFed API makes this possible.
 
@@ -131,4 +131,4 @@ Top 8 teams are invited in person. EuMINe covers travel (up to €300/person) an
 ## Contact
 
 - **Q&A:** [GitHub Discussions](../../discussions) — answers within 48h on working days
-- **Email:** hackathon@eumine.eu
+- **Email:** euminecost@gmail.com

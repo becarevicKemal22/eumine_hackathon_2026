@@ -12,19 +12,11 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from matfed_api import MatFedPredictor
 
-
-# ---------------------------------------------------------------------------
-# Output column order of MODEL.predict(X).
-# This MUST match the column order of `y` used when the model was trained.
-# Retraining keeps the Colab order: TARGETS = ["bandgap_eV", "formation_energy_eV_per_atom"]
-#   -> column 0 = band gap, column 1 = formation energy per atom
-# If you change the target order in the training script, change these too.
-# ---------------------------------------------------------------------------
 BAND_GAP_COL = 0
 FORMATION_ENERGY_COL = 1
 
 # Default location of the trained model, relative to this file.
-DEFAULT_MODEL_FILE = "model/V2_magpie_multioutput_random_forest_model.joblib"
+DEFAULT_MODEL_FILE = "model/TakeMe2Romania.joblib"
 
 # The .joblib is too large to commit; it is hosted on Google Drive and fetched on
 # first use. Id is from the share link .../file/d/<ID>/view.
@@ -32,7 +24,7 @@ DEFAULT_MODEL_FILE = "model/V2_magpie_multioutput_random_forest_model.joblib"
 MODEL_DRIVE_FILE_ID = "1qxlbETZFbXFNSlmdCDEKE5NjEPfWKKAr"
 
 
-class BosnianPredictor(MatFedPredictor):
+class TakeMe2RomaniaPredictor(MatFedPredictor):
     def __init__(self) -> None:
         self.featurizer = ElementProperty.from_preset("magpie")
         self.model = None
@@ -56,12 +48,7 @@ class BosnianPredictor(MatFedPredictor):
 
     @staticmethod
     def _download_model(dest: Path) -> None:
-        """Download the model weights from Google Drive into `dest`.
-
-        Uses gdown (installed on first run if missing) because Drive serves large
-        files behind an HTML confirmation page that a plain curl would save as
-        corrupt bytes; gdown handles the confirmation token automatically.
-        """
+        
         dest.parent.mkdir(parents=True, exist_ok=True)
         try:
             import gdown
@@ -98,7 +85,6 @@ class BosnianPredictor(MatFedPredictor):
         if self.expected_features is not None:
             df = df.reindex(columns=self.expected_features)
 
-        # Never drop rows (must return one prediction per input); impute any gaps.
         return df.apply(pd.to_numeric, errors="coerce").fillna(0.0)
 
     @staticmethod

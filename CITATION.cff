@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Akagic"
+    given-names: "Amila"
+  - family-names: "Aligayev"
+    given-names: "Amil"
+  - family-names: "Becarevic"
+    given-names: "Kemal"
+  - family-names: "Spahic"
+    given-names: "Ahmed"
+  - family-names: "Mustafic"
+    given-names: "Aid"
+title: "EuMINe DataBridge Hackathon 2026 Submission"
+version: 1.0.0
+date-released: "2026-06-22"
+url: "https://github.com/becarevicKemal22/eumine_hackathon_2026"

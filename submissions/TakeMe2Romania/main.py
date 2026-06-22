@@ -4,18 +4,13 @@ from pathlib import Path
 from pymatgen.core import Structure
 from tqdm import tqdm
 
-# Pretpostavljamo da se klasa nalazi u datoteci matfed_predictor.py
-from matfed_predictor import BosnianPredictor
+from matfed_predictor import TakeMe2RomaniaPredictor
 
 
 def load_structures_from_cif_folder(
     folder_path: str,
 ) -> tuple[list[Structure], list[str]]:
-    """Loads all the .cifs from the given directory
-
-    Vraća listu pymatgen Structure objekata i paralelnu listu pripadajućih
-    material_id-eva (naziva fajlova bez ekstenzije).
-    """
+    
     structures = []
     material_ids = []
     folder = Path(folder_path)
@@ -24,7 +19,6 @@ def load_structures_from_cif_folder(
         print(f"Error: Folder {folder_path} does not exist!")
         return [], []
 
-    # Pronađi sve .cif datoteke (uključujući i velika slova)
     cif_files = list(folder.glob("*.cif")) + list(folder.glob("*.CIF"))
     print(f"Found {len(cif_files)} CIF files. Loading...")
 
@@ -35,7 +29,7 @@ def load_structures_from_cif_folder(
            
             material_ids.append(file_path.stem)
         except Exception as e:
-            print(f"\nGreška pri učitavanju {file_path.name}: {e}")
+            print(f"\nError while loading {file_path.name}: {e}")
 
     return structures, material_ids
 
@@ -45,8 +39,8 @@ def main():
     CIF_FOLDER = "test_input_structures"
     MODEL_PATH = "model/V2_magpie_multioutput_random_forest_model.joblib"
    
-    print("=== Initialising BosnianPredictor ===")
-    predictor = BosnianPredictor()
+    print("=== Initialising TakeMe2RomaniaPredictor ===")
+    predictor = TakeMe2RomaniaPredictor()
 
     print("\n=== Loading model ===")
     predictor.load_model(model_path=MODEL_PATH)
@@ -80,10 +74,9 @@ def main():
         json_predictions.append(
             {
                 "material_id": mat_id,
-                "formation_energy_per_atom": round(
-                    pred["formation_energy_per_atom"], 4
-                ),
-                "band_gap": round(pred["band_gap"], 2),
+                "formation_energy_per_atom":
+                    pred["formation_energy_per_atom"],
+                "band_gap": pred["band_gap"],
             }
         )
 
@@ -95,12 +88,8 @@ def main():
         "predictions": json_predictions,
     }
 
-    # Putanja za spremanje prema slici (prilagodi po potrebi)
-    output_folder = Path("submissions") / final_output["team_name"]
-    output_folder.mkdir(parents=True, exist_ok=True)
-    output_json_path = output_folder / "predictions_test.json"
+    output_json_path = Path("predictions_test.json")
 
-    # Spremanje u JSON fajl sa "indent=2" radi lijepe i čitljive strukture (kao na slici)
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(final_output, f, indent=2, ensure_ascii=False)
 

@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from pathlib import Path
 from typing import Dict, List
 
@@ -24,6 +26,11 @@ FORMATION_ENERGY_COL = 1
 # Default location of the trained model, relative to this file.
 DEFAULT_MODEL_FILE = "model/V2_magpie_multioutput_random_forest_model.joblib"
 
+# The .joblib is too large to commit; it is hosted on Google Drive and fetched on
+# first use. Id is from the share link .../file/d/<ID>/view.
+# REPLACE WHEN NECESSARY
+MODEL_DRIVE_FILE_ID = "1qxlbETZFbXFNSlmdCDEKE5NjEPfWKKAr"
+
 
 class BosnianPredictor(MatFedPredictor):
     def __init__(self) -> None:
@@ -39,9 +46,31 @@ class BosnianPredictor(MatFedPredictor):
             if path.is_dir():
                 path = path / DEFAULT_MODEL_FILE
 
-        if path.exists():
+        # Fetch the weights from Google Drive if they aren't on disk yet.
+        if not (path.exists() and path.stat().st_size > 0):
+            self._download_model(path)
+
+        if path.exists() and path.stat().st_size > 0:
             self.model = joblib.load(path)
             self.expected_features = self._read_expected_features(self.model)
+
+    @staticmethod
+    def _download_model(dest: Path) -> None:
+        """Download the model weights from Google Drive into `dest`.
+
+        Uses gdown (installed on first run if missing) because Drive serves large
+        files behind an HTML confirmation page that a plain curl would save as
+        corrupt bytes; gdown handles the confirmation token automatically.
+        """
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            import gdown
+        except ImportError:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "gdown"])
+            import gdown
+
+        print(f"Downloading model weights to {dest} ...")
+        gdown.download(id=MODEL_DRIVE_FILE_ID, output=str(dest), quiet=False)
 
     @staticmethod
     def _read_expected_features(model) -> List[str]:
@@ -116,7 +145,7 @@ class BosnianPredictor(MatFedPredictor):
 
     def describe(self) -> Dict:
         return {
-            "team_name": "TakeMeToRomania",
+            "team_name": "TakeMe2Romania",
             "model_type": "RandomForestRegressor (multi-output) + MAGPIE",
             "api_version": "MatFed API v1",
             "data_sources": ["Materials Project", "JARVIS-DFT"],

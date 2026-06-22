@@ -35,8 +35,8 @@ import json
 #BASELINE_MAE_BG = 0.80   # eV
 #PERFECT_MAE     = 0.01   # theoretical floor for normalization
 #
-BASELINE_MAE_EF = 0.2378   # eV/atom — formation energy
-BASELINE_MAE_BG = 0.6414   # eV       — band gap
+BASELINE_MAE_EF = 0.2712   # eV/atom — formation energy
+BASELINE_MAE_BG = 0.5003   # eV       — band gap
 PERFECT_MAE     = 0.01           # theoretical minimum for scoring normalization
 
 

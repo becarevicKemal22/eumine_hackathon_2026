@@ -11,7 +11,7 @@ from matfed_predictor import BosnianPredictor
 def load_structures_from_cif_folder(
     folder_path: str,
 ) -> tuple[list[Structure], list[str]]:
-    """Učitava sve .cif datoteke iz zadanog foldera.
+    """Loads all the .cifs from the given directory
 
     Vraća listu pymatgen Structure objekata i paralelnu listu pripadajućih
     material_id-eva (naziva fajlova bez ekstenzije).
@@ -21,18 +21,18 @@ def load_structures_from_cif_folder(
     folder = Path(folder_path)
 
     if not folder.exists() or not folder.is_dir():
-        print(f"Greška: Direktorij {folder_path} ne postoji!")
+        print(f"Error: Folder {folder_path} does not exist!")
         return [], []
 
     # Pronađi sve .cif datoteke (uključujući i velika slova)
     cif_files = list(folder.glob("*.cif")) + list(folder.glob("*.CIF"))
-    print(f"Pronađeno {len(cif_files)} CIF datoteka. Učitavam...")
+    print(f"Found {len(cif_files)} CIF files. Loading...")
 
-    for file_path in tqdm(cif_files, desc="Učitavanje CIF datoteka"):
+    for file_path in tqdm(cif_files, desc="Loading CIF files.."):
         try:
             struct = Structure.from_file(file_path)
             structures.append(struct)
-            # Uzimamo samo ime fajla bez ekstenzije (npr. "mp-1234" od "mp-1234.cif")
+           
             material_ids.append(file_path.stem)
         except Exception as e:
             print(f"\nGreška pri učitavanju {file_path.name}: {e}")
@@ -41,41 +41,40 @@ def load_structures_from_cif_folder(
 
 
 def main():
-    # --- KONFIGURACIJA ---
-    CIF_FOLDER = "test_input_structures"
-    MODEL_PATH = None
-    # ---------------------
 
-    print("=== Inicijalizacija BosnianPredictor-a ===")
+    CIF_FOLDER = "test_input_structures"
+    MODEL_PATH = "model/V2_magpie_multioutput_random_forest_model.joblib"
+   
+    print("=== Initialising BosnianPredictor ===")
     predictor = BosnianPredictor()
 
-    print("\n=== Učitavanje modela ===")
+    print("\n=== Loading model ===")
     predictor.load_model(model_path=MODEL_PATH)
 
     if predictor.model is None:
         print(
-            "Greška: Model nije uspješno učitan! Provjeri putanju do .joblib fajla."
+            "Error: Model not found!"
         )
         return
-    print("Model je uspješno učitan.")
+    print("Model loaded properly.")
 
-    print("\n=== Sakupljanje i parsiranje struktura ===")
+    print("\n=== Structure parsing... ===")
     structures, material_ids = load_structures_from_cif_folder(CIF_FOLDER)
 
     if not structures:
-        print("Nema struktura za predikciju. Prekidam izvršavanje.")
+        print("No structures to parse. Exiting...")
         return
 
-    print(f"\n=== Pokretanje predikcije za {len(structures)} struktura ===")
-    print("Ovo može potrajati jer se računaju MAGPIE deskriptori...")
+    print(f"\n=== Running predictions for {len(structures)} structures ===")
+    print("This can take a while...")
     predictions = predictor.predict(structures)
 
-    print("\n=== Predikcija završena! Usklađivanje rezultata u JSON ===")
+    print("\n=== Predictions made! Exporting to JSON. ===")
 
-    # Dohvaćamo informacije o timu iz deskripcije modela
+  
     model_info = predictor.describe()
 
-    # Kreiramo listu pojedinačnih predikcija u formatu sa slike
+   
     json_predictions = []
     for mat_id, pred in zip(material_ids, predictions):
         json_predictions.append(
@@ -88,10 +87,9 @@ def main():
             }
         )
 
-    # Kreiramo finalnu strukturu JSON-a
-    # Ovdje možeš promijeniti "team_name" i "model_id" ako ti trebaju specifične vrijednosti za PR
+  
     final_output = {
-        "team_name": model_info.get("team_name", "TakeMeToRomania"),
+        "team_name": model_info.get("team_name", "TakeMe2Romania"),
         "model_id": pred.get("model_id", "rf_magpie_bosnia_v2"),
         "matfed_api_version": "1.0",
         "predictions": json_predictions,
@@ -106,7 +104,7 @@ def main():
     with open(output_json_path, "w", encoding="utf-8") as f:
         json.dump(final_output, f, indent=2, ensure_ascii=False)
 
-    print(f"\nSve predikcije su uspješno spremljene u: {output_json_path}")
+    print(f"\nPredictions sucessfully saved as: {output_json_path}")
 
 
 if __name__ == "__main__":

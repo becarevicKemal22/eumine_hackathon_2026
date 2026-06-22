@@ -22,7 +22,7 @@ BAND_GAP_COL = 0
 FORMATION_ENERGY_COL = 1
 
 # Default location of the trained model, relative to this file.
-DEFAULT_MODEL_FILE = "model/magpie_multioutput_random_forest_model.joblib"
+DEFAULT_MODEL_FILE = "model/V2_magpie_multioutput_random_forest_model.joblib"
 
 
 class BosnianPredictor(MatFedPredictor):

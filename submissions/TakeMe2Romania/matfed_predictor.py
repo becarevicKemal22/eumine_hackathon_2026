@@ -16,7 +16,7 @@ BAND_GAP_COL = 0
 FORMATION_ENERGY_COL = 1
 
 # Default location of the trained model, relative to this file.
-DEFAULT_MODEL_FILE = "model/TakeMe2Romania.joblib"
+DEFAULT_MODEL_FILE = "model/TakeMe2Romania_v1.joblib"
 
 # The .joblib is too large to commit; it is hosted on Google Drive and fetched on
 # first use. Id is from the share link .../file/d/<ID>/view.

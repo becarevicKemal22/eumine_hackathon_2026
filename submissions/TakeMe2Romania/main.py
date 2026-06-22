@@ -37,7 +37,7 @@ def load_structures_from_cif_folder(
 def main():
 
     CIF_FOLDER = "test_input_structures"
-    MODEL_PATH = "model/V2_magpie_multioutput_random_forest_model.joblib"
+    MODEL_PATH = "model/TakeMe2Romania_v1.joblib"
    
     print("=== Initialising TakeMe2RomaniaPredictor ===")
     predictor = TakeMe2RomaniaPredictor()
@@ -83,7 +83,7 @@ def main():
   
     final_output = {
         "team_name": model_info.get("team_name", "TakeMe2Romania"),
-        "model_id": pred.get("model_id", "rf_magpie_bosnia_v2"),
+        "model_id": model_info.get("model_id", "TakeMe2Romania_v1"),
         "matfed_api_version": "1.0",
         "predictions": json_predictions,
     }
